@@ -19,7 +19,7 @@ public struct QRDetectContext {
         ]
         guard let detector = CIDetector(ofType: CIDetectorTypeQRCode, context: nil, options: options) else { return nil }
         guard let image = CIImage(image: self.raw) else { return nil }
-        let strings = detector.features(in: image).flatMap { $0 as? CIQRCodeFeature }.flatMap { $0.messageString }
+        let strings = detector.features(in: image).compactMap { $0 as? CIQRCodeFeature }.compactMap { $0.messageString }
         return strings.count > 0 ? strings : nil
     }
     

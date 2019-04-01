@@ -68,7 +68,7 @@ public struct QRCreateContext {
             "inputMessage" : raw,
             "inputCorrectionLevel" : correction.rawValue
         ]
-        guard let qrFilter = CIFilter(name: "CIQRCodeGenerator", withInputParameters: qrParameters) else { return nil }
+        guard let qrFilter = CIFilter(name: "CIQRCodeGenerator", parameters: qrParameters) else { return nil }
         qrFilter.setDefaults()
         guard let qrImage = qrFilter.outputImage else { return nil }
 
@@ -78,7 +78,7 @@ public struct QRCreateContext {
             "inputColor0": CIColor(color: foregroundColor),
             "inputColor1": CIColor(color: backgroundColor)
         ]
-        guard let colorFilter = CIFilter(name: "CIFalseColor", withInputParameters: colorParameters) else { return nil }
+        guard let colorFilter = CIFilter(name: "CIFalseColor", parameters: colorParameters) else { return nil }
         guard let generatedImage = colorFilter.outputImage else { return nil }
 
         // scaling
@@ -87,9 +87,9 @@ public struct QRCreateContext {
             y: size.height / generatedImage.extent.height
         )
         let scaleTransform = CGAffineTransform(scaleX: scale.x, y: scale.y)
-        let appliedImage = generatedImage.applying(scaleTransform).cropping(to: CGRect(x: 0, y: 0, width: size.width, height: size.height))
+        let appliedImage = generatedImage.transformed(by: scaleTransform).cropped(to: CGRect(x: 0, y: 0, width: size.width, height: size.height))
         
-        let context = CIContext(options: [kCIContextUseSoftwareRenderer : renderer == .software])
+        let context = CIContext(options: [CIContextOption.useSoftwareRenderer : renderer == .software])
         guard let image = context.createCGImage(appliedImage, from: appliedImage.extent) else { return nil }
         return UIImage(cgImage: image, scale: 1.0, orientation: .up)
     }
